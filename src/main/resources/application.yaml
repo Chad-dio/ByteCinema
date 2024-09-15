@@ -1,0 +1,42 @@
+server:
+  port: 8001
+spring:
+  application:
+    name: ByteCinema
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://116.198.242.154:3306/CloudVault?useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: 'Chad@20021231'
+  jackson:
+    default-property-inclusion: non_null # JSON处理时忽略非空字段
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+  redis:
+    host: 121.40.204.51
+    port: 6379
+    #    password: 123321
+    lettuce:
+      pool:
+        max-active: 10
+        max-idle: 10
+        min-idle: 1
+        time-between-eviction-runs: 10s
+        #application.yml文件配置
+
+
+mybatis-plus:
+  type-aliases-package: org.chad.cloudvault.domain.po
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted # 配置逻辑删除字段
+  configuration:
+    default-enum-type-handler: com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
+
+#minio的配置信息，有需要再用
+#minio:
+#  endpoint: http://116.198.242.154:9090
+#  accessKey: minio
+#  secretKey: minio123
+#  bucketName: cloudvault

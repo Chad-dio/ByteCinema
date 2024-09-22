@@ -1,21 +1,10 @@
 package org.chad.bytecinema.common.user;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class UserDTO {
-    /**
-     * 用户ID
-     */
-    private Long id;
-
-    /**
-     * 用户姓名
-     */
-    private String username;
-
-    /**
-     * 用户头像
-     */
-    private String icon = "";
+    private String email;
 }

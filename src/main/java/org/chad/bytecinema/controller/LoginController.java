@@ -1,14 +1,11 @@
 package org.chad.bytecinema.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.chad.bytecinema.domain.dto.LoginDTO;
 import org.chad.bytecinema.domain.dto.RegisterDTO;
 import org.chad.bytecinema.domain.entity.Result;
-import org.chad.bytecinema.domain.vo.Captcha;
 import org.chad.bytecinema.service.LoginService;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/bytecinema/login/")
@@ -18,12 +15,10 @@ public class LoginController {
 
     /**
      * 获取图像验证码
-     * @param
      * @return 图像验证码对应的uuid
-     * @throws IOException
      */
     @GetMapping("captcha")
-    public Result createCaptcha() throws IOException {
+    public Result createCaptcha(){
         return Result.success(loginService.createCaptcha());
     }
 
@@ -42,5 +37,15 @@ public class LoginController {
     public Result register(@RequestBody RegisterDTO registerDTO){
         loginService.register(registerDTO);
         return Result.success();
+    }
+
+    @PostMapping
+    public Result login(@RequestBody LoginDTO loginDTO){
+        return Result.success(loginService.login(loginDTO));
+    }
+
+    @PostMapping("refresh")
+    public Result refresh(@RequestHeader String refreshToken){
+        return Result.success(loginService.refresh(refreshToken));
     }
 }

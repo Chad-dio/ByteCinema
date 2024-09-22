@@ -1,11 +1,10 @@
 package org.chad.bytecinema.service;
 
 
+import org.chad.bytecinema.domain.dto.LoginDTO;
 import org.chad.bytecinema.domain.dto.RegisterDTO;
 import org.chad.bytecinema.domain.vo.Captcha;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import org.chad.bytecinema.domain.vo.LoginVO;
 
 public interface LoginService {
     Captcha createCaptcha();
@@ -15,4 +14,8 @@ public interface LoginService {
     void register(RegisterDTO registerDTO);
 
     void checkCaptcha(String uuid, String code);
+
+    LoginVO login(LoginDTO loginDTO);
+
+    LoginVO refresh(String refreshToken);
 }

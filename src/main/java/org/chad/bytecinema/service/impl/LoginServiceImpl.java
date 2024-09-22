@@ -7,11 +7,16 @@ import cn.hutool.extra.mail.MailUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import lombok.RequiredArgsConstructor;
+import org.chad.bytecinema.domain.dto.LoginDTO;
 import org.chad.bytecinema.domain.dto.RegisterDTO;
+import org.chad.bytecinema.domain.po.Favorites;
 import org.chad.bytecinema.domain.po.User;
 import org.chad.bytecinema.domain.vo.Captcha;
+import org.chad.bytecinema.domain.vo.LoginVO;
 import org.chad.bytecinema.service.LoginService;
+import org.chad.bytecinema.service.user.FavoritesService;
 import org.chad.bytecinema.service.user.UserService;
+import org.chad.bytecinema.utils.JwtTokenUtil;
 import org.chad.bytecinema.utils.RandomGenerator;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -28,6 +33,10 @@ public class LoginServiceImpl implements LoginService {
     private final StringRedisTemplate stringRedisTemplate;
 
     private final UserService userService;
+
+    private final FavoritesService favoritesService;
+
+    private final JwtTokenUtil jwtTokenUtil;
 
     @Override
     public Captcha createCaptcha(){
@@ -94,6 +103,48 @@ public class LoginServiceImpl implements LoginService {
         user.setPassword(registerDTO.getPassword());
         userService.save(user);
 
-        //TODO:收藏夹的初始化
+        //创建默认收藏夹
+        final Favorites favorites = new Favorites();
+        favorites.setUserId(user.getId());
+        favorites.setName("默认收藏夹");
+        favoritesService.save(favorites);
+
+        user.setDefaultFavoritesId(favorites.getId());
+        userService.updateById(user);
+    }
+
+    @Override
+    public LoginVO login(LoginDTO loginDTO) {
+        String email = loginDTO.getEmail().toLowerCase();
+        LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery(User.class)
+                .eq(User::getEmail, email)
+                .eq(User::getPassword, loginDTO.getPassword())
+                .eq(User::getDelFlag, 0);
+        User user = userService.getOne(queryWrapper);
+        if(BeanUtil.isEmpty(user)){
+            throw new RuntimeException("用户账号或密码错误");
+        }
+        // 生成令牌
+        String accessToken = jwtTokenUtil.generateAccessToken(user);
+        String refreshToken = jwtTokenUtil.generateRefreshToken(user);
+        return new LoginVO(accessToken, refreshToken);
+    }
+
+    @Override
+    public LoginVO refresh(String refreshToken) {
+        boolean f = jwtTokenUtil.validateToken(refreshToken);
+        if(!f){
+            throw new RuntimeException("刷新令牌异常，请重新登录");
+        }
+        LambdaQueryWrapper<User> queryWrapper = Wrappers.lambdaQuery(User.class)
+                .eq(User::getEmail, jwtTokenUtil.getEmailFromToken(refreshToken))
+                .eq(User::getDelFlag, 0);
+        User user = userService.getOne(queryWrapper);
+        if(BeanUtil.isEmpty(user)){
+            throw new RuntimeException("刷新令牌异常，请重新登录");
+        }
+        String accessToken = jwtTokenUtil.generateAccessToken(user);
+        String newRefreshToken = jwtTokenUtil.generateRefreshToken(user);
+        return new LoginVO(accessToken, newRefreshToken);
     }
 }

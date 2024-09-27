@@ -22,8 +22,28 @@ spring:
         max-idle: 10
         min-idle: 1
         time-between-eviction-runs: 10s
-        #application.yml文件配置
+  mail:
+    host: smtp.qq.com
+    username: 2420811595@qq.com
+    password: wfjyaomlkhnkdjjf
+    port: 587
+    default-encoding: UTF-8
+    #其他参数
+    properties:
+      mail:
+        smtp:
+          ssl:
+            #本地测试，先放开ssl
+            enable: false
+            required: false
+        #开启debug模式，这样邮件发送过程的日志会在控制台打印出来，方便排查错误
+        debug: true
 
+jwt:
+  access-token:
+    expiration: 3 * 360000 # 3h
+  refresh-token:
+    expiration: 7 * 24 * 360000 # 7天
 
 mybatis-plus:
   type-aliases-package: org.chad.bytecinema.domain.po

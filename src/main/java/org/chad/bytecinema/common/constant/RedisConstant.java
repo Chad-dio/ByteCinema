@@ -9,4 +9,8 @@ public class RedisConstant {
 
     public static final String LOGIN_EMAIL = "login:email:";
     public static final long LOGIN_EMAIL_WINDOW = 300000;
+
+    public static final String USER_FAN = "user:fan:";
+    public static final String USER_SUBSCRIBE = "user:subscribe";
+
 }
